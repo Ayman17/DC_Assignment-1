@@ -30,8 +30,8 @@ class LZ77 {
         String Text = "Hello World!";
         // int windowSize = 5;
         // int lookaheadSize = 3;
-        // CompressionLz77 lz77 = new CompressionLz77(Text);
-        // String compressedText = lz77.compress();
+        CompressionLz77 lz77 = new CompressionLz77(Text);
+        String compressedText = lz77.compress();
         // System.out.println(compressedText);
     }
 }

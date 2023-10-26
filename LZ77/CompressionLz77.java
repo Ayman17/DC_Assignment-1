@@ -10,18 +10,22 @@ class CompressionLz77 {
     public String compress() {
         String buffer = "";
         for (int i = 0, j = 0; i < input.length(); i++) {
-            while (j <= buffer.length()) {
+            while (j < buffer.length()) {
                 if (input.charAt(i) == buffer.charAt(j)) {
-                    buffer += input.charAt(i);
-                    j++;
+                    // buffer += input.charAt(i);
+                    // output += "<p,l," + input
+                    i++;
                     break;
                 }
                 else {
                     j++;
                 }
             }
-            buffer += input.charAt(i);
-            output += "<0,0," + input.charAt(i) + ">\n";
+            if (j >= buffer.length()) {
+                buffer += input.charAt(i);
+                this.output += "<0,0," + input.charAt(i) + ">\n";
+            }
+            j = 0;
         }
         return output;
     }
