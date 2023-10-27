@@ -27,7 +27,7 @@ class LZ77 {
         - add windowSize and lookaheadSize to CompressionLz77 class
      */
     public static void main(String[] args) {
-        String Text = "Hello World!";
+        String Text = "ABAABABAABBBBBBBBBBBBA";
         // int windowSize = 5;
         // int lookaheadSize = 3;
         CompressionLz77 lz77 = new CompressionLz77(Text);
