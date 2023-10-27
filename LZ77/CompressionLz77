@@ -1,56 +1,18 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.FileWriter;
 
 class CompressionLz77 {
     private String input;
     private String output;
-    private String fileToCompressName;
     private final int BUFFER_SIZE = 10000; 
 
-    public CompressionLz77(String fileName) {
-        this.fileToCompressName = fileName;
-        this.input = this.getTextToCompress(fileToCompressName);
+    public CompressionLz77(String input) {
+        this.input = input;
         this.output = "";
     }
-    
-    // Methods related to files 
-    private String getTextToCompress(String fileName) {
-        String Text = "";
-        try {
-            FileReader fileReader = new FileReader(fileName);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String line = "";
-            
-            while ((line = bufferedReader.readLine()) != null) {
-                Text += line;
-                System.out.println(Text);
-            }
-            bufferedReader.close();
-            fileReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Text;
-    }
-    
-    private void saveCompressedStreamToFile() {
-        try {
-            FileWriter fileWriter = new FileWriter(fileToCompressName + "-compressed.txt");
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            
-            fileWriter.write(output);
-            
-            bufferedWriter.close();
-            fileWriter.close();
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
+    // Hello World!
+
     private String getLongestMatch(String currentBuffer, String currentInput) {
         String result = "";
         for (int i = 0; i < currentInput.length(); i++) {        
@@ -68,6 +30,18 @@ class CompressionLz77 {
             return stream;
     }
 
+    private String getTextToCompress() {
+        String Text = "";
+        try {
+            FileReader fileReader = new FileReader("TextToCompress.txt");
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            while ((Text += bufferedReader.readLine())) {
+                
+            }
+        }
+        return Text;
+    }
     public String compress() {
         for (int i = 0; i < input.length(); i++) {
             
@@ -95,7 +69,6 @@ class CompressionLz77 {
 
             i += length;
         }
-        saveCompressedStreamToFile();
         return output;
     }
 }

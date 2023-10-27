@@ -14,7 +14,7 @@ class LZ77 {
      *      - Lz77 compress file and save it in another file it name is (nameOfOriginalFile-compressed.txt)
      * 2. Decompress text file and print it in terminal and append it in TextToCompress.txt file
      * (V 0.0)
-     *  - First, we need to creat DeCompressionLz77 class (attributes: input, output | operations: deCompress)
+     *  - First, we need to creat DeCompressionL`z77 class (attributes: input, output | operations: deCompress)
             * - main send Compressed stream to decompress method 
             *      - the method decompress the stream and return it to main
             *      - main print the compressed text in terminal 
@@ -28,10 +28,11 @@ class LZ77 {
      */
     public static void main(String[] args) {
         // String Text = "ARARARSARARS";
-        String Text2 = "ABAABABAABBBBBBBBBBBBA";
+        // String Text2 = "ABAABABAABBBBBBBBBBBBA";
+        String fileName = "TextToCompress.txt";
         // int windowSize = 5;
         // int lookaheadSize = 3;
-        CompressionLz77 lz77 = new CompressionLz77(Text2);
+        CompressionLz77 lz77 = new CompressionLz77(fileName);
         String compressedText = lz77.compress();
         System.out.println(compressedText);
     }
