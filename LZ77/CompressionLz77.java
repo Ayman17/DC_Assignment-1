@@ -21,55 +21,39 @@ class CompressionLz77 {
         return result;
     }
 
-    private String getCompressedStream(String maxMatch, int position) {
-        return (Integer.toString(position) + "," + Integer.toString(maxMatch.length()) + "," );
+    private String getCompressedStream(int position, int length, char nextChar) {
+            String stream = position + "," + length + "," + nextChar + "-";
+            // System.out.println(stream);
+            return stream;
     }
 
     public String compress() {
-        for (int i = 0; i < input.length(); ) {
+        for (int i = 0; i < input.length(); i++) {
             
             String maxMatch = "";
             char nextChar = input.charAt(i);
-            int maxPosition = 0;
+            int position = 0;
+            int length = 0;
 
             // TODO: need to add max for loop iteration (BUFFER_SIZE) 
             for (int j = i - 1; j >= 0; j--) {
-                String currentMatch = getLongestMatch(input.substring(i - (j + 1)), input.substring(i));
+                String currentMatch = getLongestMatch(input.substring(j), input.substring(i));
                 if (currentMatch.length() > maxMatch.length()) {
                     maxMatch = currentMatch;
+                    length = maxMatch.length();
+                    position = i - j;
+                    if (maxMatch.length() + i >= input.length()) {
+                        nextChar = '\0';
+                        break;
+                    }
                     nextChar = input.charAt(maxMatch.length() + i);
                 }
-                maxPosition = i - j;
             }
 
-            System.out.println(maxMatch + ", " + nextChar + ", " + maxPosition);
+            output += getCompressedStream(position, length, nextChar);
 
-            if (maxMatch.length() > 0) {
-                i += maxMatch.length();
-            }  else {
-                i += 1;
-            }
-
-            // String commpressedStream= getCompressedStream()
-
-
-            //     String currntMatch = "";
-
-            //     if (input.charAt(i) == buffer.charAt(j)) {
-            //         // buffer += input.charAt(i);
-            //         // output += "<p,l," + input
-            //         i++;
-            //         break;
-            //     }
-            //     else {
-            //         j++;
-            //     }
-            // }
-            // if (j >= buffer.length()) {
-            //     buffer += input.charAt(i);
-            //     this.output += "<0,0," + input.charAt(i) + ">\n";
-            }
-            // j = 0
+            i += length;
+        }
         return output;
     }
 }
