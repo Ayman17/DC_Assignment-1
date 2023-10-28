@@ -129,8 +129,10 @@ class CompressionLz77 {
 
             compressedString = compressedString.substring(endOfTagIndex + 1);
         }
-
-        String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-decompressed.txt";
+        if (fileName.contains("-compressed")) {
+            fileName = fileName.substring(0, fileName.indexOf("-compressed"));
+        }
+        String outputFileName = fileName + "-decompressed.txt";
         saveFile(result, outputFileName);
 
         return result;
