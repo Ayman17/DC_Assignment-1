@@ -9,6 +9,8 @@ class CompressionLz77 {
     private String output;
     private String fileToCompressName;
     private final int BUFFER_SIZE = 10000; 
+    private final String TAG_SEPARATOR = ",";
+    private final String TAG_END = "-";
 
     public CompressionLz77(String fileName) {
         this.fileToCompressName = fileName;
@@ -64,7 +66,7 @@ class CompressionLz77 {
     }
 
     private String getCompressedStream(int position, int length, char nextChar) {
-            String stream = position + "," + length + "," + nextChar + "-";
+            String stream = position + TAG_SEPARATOR + length + TAG_SEPARATOR + nextChar + TAG_END;
             return stream;
     }
 
