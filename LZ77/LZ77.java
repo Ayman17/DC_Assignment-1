@@ -35,7 +35,7 @@ class LZ77 {
         // int windowSize = 5;
         // int lookaheadSize = 3;
         CompressionLz77 lz77 = new CompressionLz77();
-        String compressedText = lz77.compress("TextToCopmress.txt");
+        String compressedText = lz77.compress("TextToCompress.txt");
 
         lz77.decompress("TextToCompress-compressed.txt");
 

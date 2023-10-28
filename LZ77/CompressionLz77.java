@@ -116,7 +116,9 @@ class CompressionLz77 {
     }
 
     // When decomporssing,  make sure your don't put TAG_END, and TAG_SEPARATOR in the text content
-    public String decompress (String compressedString) {
+    public String decompress (String fileName) {
+        String compressedString = readFile(fileName);
+
         String result = "";
 
         while (compressedString.length() > 0) {
@@ -129,6 +131,10 @@ class CompressionLz77 {
             compressedString = compressedString.substring(endOfTagIndex + 1);
         }
     
+
+        String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-decompressed.txt";
+        saveFile(result, outputFileName);
+
         return result;
     }
 }
