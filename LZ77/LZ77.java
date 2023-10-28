@@ -34,10 +34,10 @@ class LZ77 {
 
         // int windowSize = 5;
         // int lookaheadSize = 3;
-        CompressionLz77 lz77 = new CompressionLz77("TextToCompress.txt");
-        // String compressedText = lz77.compress();
+        CompressionLz77 lz77 = new CompressionLz77();
+        String compressedText = lz77.compress("TextToCopmress.txt");
 
-        lz77.decompress(compressedString);
+        lz77.decompress("TextToCompress-compressed.txt");
 
         // System.out.println(compressedText);
     }

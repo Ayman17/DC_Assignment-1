@@ -5,19 +5,9 @@ import java.io.IOException;
 import java.io.FileWriter;
 
 class CompressionLz77 {
-    private String input;
-    private String output;
-    private String fileToCompressName;
-    private final int BUFFER_SIZE = 10000; 
     private final String TAG_SEPARATOR = ",";
     private final String TAG_END = "-";
 
-    public CompressionLz77(String fileName) {
-        this.fileToCompressName = fileName;
-        this.input = this.readFile(fileToCompressName);
-        this.output = "";
-    }
-    
     // Methods related to files 
     private String readFile(String fileName) {
         String Text = "";
@@ -38,13 +28,13 @@ class CompressionLz77 {
         return Text;
     }
     
-    private void saveCompressedStreamToFile() {
+    private void saveCompressedStreamToFile(String content, String fileName) {
         try {
-            String outputFileName = fileToCompressName.substring(0, fileToCompressName.indexOf(".txt")) + "-compressed.txt";
+            String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-compressed.txt";
             FileWriter fileWriter = new FileWriter(outputFileName);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             
-            fileWriter.write(output);
+            fileWriter.write(content);
             
             bufferedWriter.close();
             fileWriter.close();
@@ -71,7 +61,10 @@ class CompressionLz77 {
             return stream;
     }
 
-    public String compress() {
+    public String compress(String fileName) {
+        String input = readFile(fileName); 
+        String output = "";
+
         for (int i = 0; i < input.length(); i++) {
             
             String maxMatch = "";
@@ -98,7 +91,7 @@ class CompressionLz77 {
 
             i += length;
         }
-        saveCompressedStreamToFile();
+        saveCompressedStreamToFile(output, fileName);
         return output;
     }
 
