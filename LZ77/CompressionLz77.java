@@ -28,10 +28,9 @@ class CompressionLz77 {
         return Text;
     }
     
-    private void saveCompressedStreamToFile(String content, String fileName) {
+    private void saveFile(String content, String fileName) {
         try {
-            String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-compressed.txt";
-            FileWriter fileWriter = new FileWriter(outputFileName);
+            FileWriter fileWriter = new FileWriter(fileName);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             
             fileWriter.write(content);
@@ -91,7 +90,9 @@ class CompressionLz77 {
 
             i += length;
         }
-        saveCompressedStreamToFile(output, fileName);
+
+        String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-compressed.txt";
+        saveFile(output, outputFileName);
         return output;
     }
 
