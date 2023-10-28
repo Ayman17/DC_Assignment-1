@@ -10,16 +10,16 @@ class CompressionLz77 {
     private String fileToCompressName;
     private final int BUFFER_SIZE = 10000; 
     private final String TAG_SEPARATOR = ",";
-    private final String TAG_END = "-";
+    private final String TAG_END = " ";
 
     public CompressionLz77(String fileName) {
         this.fileToCompressName = fileName;
-        this.input = this.getTextToCompress(fileToCompressName);
+        this.input = this.readFile(fileToCompressName);
         this.output = "";
     }
     
     // Methods related to files 
-    private String getTextToCompress(String fileName) {
+    private String readFile(String fileName) {
         String Text = "";
         try {
             FileReader fileReader = new FileReader(fileName);
@@ -40,7 +40,8 @@ class CompressionLz77 {
     
     private void saveCompressedStreamToFile() {
         try {
-            FileWriter fileWriter = new FileWriter(fileToCompressName + "-compressed.txt");
+            String outputFileName = fileToCompressName.substring(0, fileToCompressName.indexOf(".txt")) + "-compressed.txt";
+            FileWriter fileWriter = new FileWriter(outputFileName);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             
             fileWriter.write(output);
