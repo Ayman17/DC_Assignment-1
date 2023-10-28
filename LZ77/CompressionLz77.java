@@ -10,7 +10,7 @@ class CompressionLz77 {
     private String fileToCompressName;
     private final int BUFFER_SIZE = 10000; 
     private final String TAG_SEPARATOR = ",";
-    private final String TAG_END = " ";
+    private final String TAG_END = "-";
 
     public CompressionLz77(String fileName) {
         this.fileToCompressName = fileName;
@@ -126,7 +126,7 @@ class CompressionLz77 {
     public String decompress (String compressedString) {
         String result = "";
 
-        compressedString += TAG_END;
+        // compressedString += TAG_END;
 
         while (compressedString.length() > 0) {
             int endOfTagIndex = compressedString.indexOf(TAG_END);
