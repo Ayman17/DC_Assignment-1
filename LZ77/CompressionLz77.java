@@ -18,7 +18,6 @@ class CompressionLz77 {
             
             while ((line = bufferedReader.readLine()) != null) {
                 Text += line;
-                System.out.println(Text);
             }
             bufferedReader.close();
             fileReader.close();
@@ -130,7 +129,6 @@ class CompressionLz77 {
 
             compressedString = compressedString.substring(endOfTagIndex + 1);
         }
-    
 
         String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-decompressed.txt";
         saveFile(result, outputFileName);
