@@ -101,4 +101,44 @@ class CompressionLz77 {
         saveCompressedStreamToFile();
         return output;
     }
+
+    private String decodeTag(String tag, String currentResult) {
+        int relativePosition = Integer.parseInt(tag.substring(0, tag.indexOf(TAG_SEPARATOR)));
+        tag = tag.substring(tag.indexOf(TAG_SEPARATOR) + 1);
+        int length = Integer.parseInt(tag.substring(0, tag.indexOf(TAG_SEPARATOR)));
+        tag = tag.substring(tag.indexOf(TAG_SEPARATOR) + 1);
+        char nextChar = tag.charAt(tag.length() - 1);
+
+        int position = currentResult.length() - relativePosition;
+
+        // System.out.println(position + ", " + length + ", " + nextChar + ", " + currentResult);
+        
+        for (int i = 0; i < length; i++) {
+            currentResult += currentResult.charAt(i + position);
+        }
+
+        currentResult += nextChar;
+
+        return currentResult;
+
+    }
+
+    public String decompress (String compressedString) {
+        String result = "";
+
+        compressedString += TAG_END;
+
+        while (compressedString.length() > 0) {
+            int endOfTagIndex = compressedString.indexOf(TAG_END);
+
+            String currentTag = compressedString.substring(0, endOfTagIndex);
+
+            result = decodeTag(currentTag, result);
+
+            compressedString = compressedString.substring(endOfTagIndex + 1);
+        }
+    
+        System.out.println(result);
+        return result;
+    }
 }

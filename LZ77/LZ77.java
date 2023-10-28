@@ -28,11 +28,16 @@ class LZ77 {
      */
     public static void main(String[] args) {
         // String Text = "RARARASRARAS";
-        String Text = "ABAABAB";
+        // String Text = "ABAABAB";
+        String compressedString = "0,0,A 0,0,B 2,1,A 3,2,B 5,3,B 1,10,A";
+
         // int windowSize = 5;
         // int lookaheadSize = 3;
         CompressionLz77 lz77 = new CompressionLz77("TextToCompress.txt");
-        String compressedText = lz77.compress();
+        // String compressedText = lz77.compress();
+        
+        lz77.decompress(compressedString);
+
         // System.out.println(compressedText);
     }
 }
