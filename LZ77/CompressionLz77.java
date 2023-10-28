@@ -111,8 +111,6 @@ class CompressionLz77 {
 
         int position = currentResult.length() - relativePosition;
 
-        // System.out.println(position + ", " + length + ", " + nextChar + ", " + currentResult);
-        
         for (int i = 0; i < length; i++) {
             currentResult += currentResult.charAt(i + position);
         }
@@ -123,10 +121,9 @@ class CompressionLz77 {
 
     }
 
+    // When decomporssing,  make sure your don't put TAG_END, and TAG_SEPARATOR in the text content
     public String decompress (String compressedString) {
         String result = "";
-
-        // compressedString += TAG_END;
 
         while (compressedString.length() > 0) {
             int endOfTagIndex = compressedString.indexOf(TAG_END);
@@ -138,7 +135,6 @@ class CompressionLz77 {
             compressedString = compressedString.substring(endOfTagIndex + 1);
         }
     
-        System.out.println(result);
         return result;
     }
 }
