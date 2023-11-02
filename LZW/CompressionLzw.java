@@ -53,10 +53,27 @@ public class CompressionLzw {
     }
 
     public void compress(String fileName) {
+        String input = readFile(fileName);
+        String output = "";
+
+        for (int i = 0; i < input.length(); i++) {
+            output = Integer.toString((int) output.charAt(i));
+        }
+        
+        String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-compressed.txt";
+        saveFile(output, outputFileName);
         return;
     }
 
     public void decompress(String fileName) {
+        String input = readFile(fileName);
+        String output = "";
+
+        if (fileName.contains("-compressed")) {
+            fileName = fileName.substring(0, fileName.indexOf("-compressed"));
+        }
+        String outputFileName = fileName + "-decompressed.txt";
+        saveFile(output, outputFileName);
         return;
     }
 }
