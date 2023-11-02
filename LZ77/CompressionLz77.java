@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileWriter;
 
+
 class CompressionLz77 {
     private final String TAG_SEPARATOR = ",";
     private final String TAG_END = "-";
