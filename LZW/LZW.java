@@ -1,17 +1,24 @@
 public class LZW {
-
+    
     public static void main(String[] args) {
-        String fileName = "TextToCompress";
-        String extension = ".txt";
+        boolean useGUI = true;
 
-        CompressionLzw lzw = new CompressionLzw();
+        if (useGUI) {
+            GUI gui = new GUI();
 
-        String fileContent = lzw.readFile(fileName + extension);
-        String fileCompressed = lzw.compress(fileContent);
-        lzw.saveFile(fileCompressed, fileName + "-compressed" + extension);
-
-        fileContent = lzw.readFile(fileName + "-compressed" + extension);
-        String fileDecompresed = lzw.decompress(fileContent);
-        lzw.saveFile(fileDecompresed, fileName + "-decompressed" + extension);
+        } else {
+            String fileName = "TextToCompress";
+            String extension = ".txt";
+            
+            CompressionLzw lzw = new CompressionLzw();
+            
+            String fileContent = lzw.readFile(fileName + extension);
+            String fileCompressed = lzw.compress(fileContent);
+            lzw.saveFile(fileCompressed, fileName + "-compressed" + extension);
+            
+            fileContent = lzw.readFile(fileName + "-compressed" + extension);
+            String fileDecompresed = lzw.decompress(fileContent);
+            lzw.saveFile(fileDecompresed, fileName + "-decompressed" + extension);
+        }
     }
 }
