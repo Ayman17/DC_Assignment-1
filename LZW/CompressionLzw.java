@@ -9,7 +9,7 @@ import java.util.Map;
 public class CompressionLzw {
     private final String TAG_SEPARATOR = ",";
     
-    private String readFile(String fileName) {
+    public String readFile(String fileName) {
         String Text = "";
         try {
             FileReader fileReader = new FileReader(fileName);
@@ -27,7 +27,7 @@ public class CompressionLzw {
         return Text;
     }
     
-    private void saveFile(String content, String fileName) {
+    public void saveFile(String content, String fileName) {
         try {
             FileWriter fileWriter = new FileWriter(fileName);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -42,8 +42,7 @@ public class CompressionLzw {
         }
     }
 
-    public void compress(String fileName) {
-        String input = readFile(fileName);
+    public String compress(String input) {
         String output = "";
 
         Integer counter = 128;
@@ -74,13 +73,10 @@ public class CompressionLzw {
         if (currentPattern.length() > 1) {
             output += Integer.toString((int) patternMap.get(currentPattern.substring(0, currentPattern.length()))) + TAG_SEPARATOR;
         }
-        String outputFileName = fileName.substring(0, fileName.indexOf(".txt")) + "-compressed.txt";
-        saveFile(output, outputFileName);
-        return;
+        return output;
     }
 
-    public void decompress(String fileName) {
-        String input = readFile(fileName);
+    public String decompress(String input) {
         String output = "";
 
         Map<Integer, String> patternMap = new HashMap<>();
@@ -114,12 +110,6 @@ public class CompressionLzw {
             output += current;
         }
 
-        if (fileName.contains("-compressed")) {
-            fileName = fileName.substring(0, fileName.indexOf("-compressed"));
-        }
-        
-        String outputFileName = fileName + "-decompressed.txt";
-        saveFile(output, outputFileName);
-        return;
+        return output;
     }
 }

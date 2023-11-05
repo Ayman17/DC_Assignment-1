@@ -5,7 +5,13 @@ public class LZW {
         String extension = ".txt";
 
         CompressionLzw lzw = new CompressionLzw();
-        lzw.compress(fileName + extension);
-        lzw.decompress(fileName + "-compressed" + extension);
+
+        String fileContent = lzw.readFile(fileName + extension);
+        String fileCompressed = lzw.compress(fileContent);
+        lzw.saveFile(fileCompressed, fileName + "-compressed" + extension);
+
+        fileContent = lzw.readFile(fileName + "-compressed" + extension);
+        String fileDecompresed = lzw.decompress(fileContent);
+        lzw.saveFile(fileDecompresed, fileName + "-decompressed" + extension);
     }
 }
