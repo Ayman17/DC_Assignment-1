@@ -63,11 +63,11 @@ public class GUI {
         compress.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CompressionLzw lzw = new CompressionLzw();
+                StandardHuffman h = new StandardHuffman();
 
-                String fileContent = lzw.readFile(inputPath);
-                String fileCompressed = lzw.compress(fileContent);
-                lzw.saveFile(fileCompressed, outputPath);
+                String fileContent = h.readFile(inputPath);
+                String fileCompressed = h.compress(fileContent);
+                h.saveFile(fileCompressed, outputPath);
             }
         });
 
@@ -76,11 +76,11 @@ public class GUI {
         decompress.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CompressionLzw lzw = new CompressionLzw();
+                StandardHuffman h = new StandardHuffman();
 
-                String fileContent = lzw.readFile(inputPath);
-                String fileCompressed = lzw.decompress(fileContent);
-                lzw.saveFile(fileCompressed, outputPath);
+                String fileContent = h.readFile(inputPath);
+                String fileCompressed = h.decompress(fileContent);
+                h.saveFile(fileCompressed, outputPath);
             }
         });
 
