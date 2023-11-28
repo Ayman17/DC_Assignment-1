@@ -1,20 +1,34 @@
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import javax.print.DocFlavor.INPUT_STREAM;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class StandardHuffman {
     char CODE_SEPARATOR = '-';
     char CODE_END = '~';
+
+    public ArrayList<Byte> readFileBinary(String fileName) {
+        ArrayList <Byte> content = new ArrayList();
+        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
+            int byteRead;
+            while ((byteRead = fileInputStream.read()) != -1) {
+                content.add((byte) byteRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return content;
+    }
 
     public String readFile(String fileName) {
         String Text = "";
@@ -35,16 +49,34 @@ public class StandardHuffman {
         return Text;
     }
 
-    public void saveBytesFile(String content, String fileName) {
-        try {
-            FileOutputStream fos = new FileOutputStream(fileName);
-            byte[] bytes = content.getBytes();
-            fos.write(bytes);
+    private static ArrayList<Byte> convertBinaryToBytes(String binaryStream) {
+        while (binaryStream.length()% 8 != 0) {
+            binaryStream += "0";
+        } 
+        
+        ArrayList<Byte> bytes = new ArrayList<Byte>();
+        for (int i = 0; i < binaryStream.length(); i += 8) {
+            String byteString = binaryStream.substring(i, i + 8);
+            byte b = (byte) Integer.parseInt(byteString, 2);
+            bytes.add(b);
+        }
+        
+        return bytes;
+    }
 
-            fos.close();
+    public void saveBytesFile(ArrayList<Byte> content, String fileName) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
+            // Convert ArrayList<Byte> to byte array
+            byte[] byteArray = new byte[content.size()];
+            for (int i = 0; i < content.size(); i++) {
+                byteArray[i] = content.get(i);
+            }
+
+            fileOutputStream.write(byteArray);
+
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } 
     }
 
     public void saveFile(String content, String fileName) {
@@ -93,57 +125,55 @@ public class StandardHuffman {
         divide(n.right, codes, code + "1");
     }
 
-    public String compress(String input) {
+    private TreeSet<Node> getSortedNodes(int[] freq) {
+        TreeSet<Node> result = new TreeSet<>();
+        for (int i = 0; i < 256; i++) {
+            if (freq[i] != 0) {
+                Node current = new Node();
+                current.freq = freq[i];
+                current.ch = (char) i;
+                result.add(current);
+            }
+        }
+        
+        return result;
+    }
+
+    public ArrayList<Byte> compress(String input) {
         int numberOfCodes = 0;
         String output = "";
         int inputLen = input.length();
-        TreeSet<Node> sortedNodes = new TreeSet<>();
-        float[] freq = new float[256];
+        TreeSet<Node> sortedNodes;
+        int[] freq = new int[256];
         String[] codes = new String[256];
-
+        
         for (int i = 0; i < inputLen; i++) {
-            // freq[input.charAt(i)] += (float)1/inputLen;
             freq[input.charAt(i)] += 1;
         }
 
         for (int i = 0; i < 256; i++) {
             if (freq[i] != 0) {
                 numberOfCodes++;
-                Node current = new Node();
-                current.freq = freq[i];
-                current.ch = (char) i;
-                sortedNodes.add(current);
             }
         }
+
+        sortedNodes = getSortedNodes(freq);
 
         combine(sortedNodes);
 
         divide(sortedNodes.first(), codes, "0");
         divide(sortedNodes.last(), codes, "1");
 
-        // printNodes(sortedNodes.first(), "");
-        // printNodes(sortedNodes.last(), "");
+        ArrayList<Byte> overHead = new  ArrayList(); 
 
-        // for (int i = 0; i < 256; i++) {
-        //     if (codes[i] != null) {
-        //         System.out.println((char) i + " : " + codes[i]);
-        //     }
-        // }
+        overHead.add((byte) numberOfCodes);
 
-
-        String numberOfCodesBin = Integer.toBinaryString(numberOfCodes);
-
-        output += numberOfCodesBin + CODE_END;
+        overHead.add((byte)inputLen);
 
         for (int i = 0; i < 256; i++) {
             if (codes[i] != null) {
-                String ch = Integer.toBinaryString(i);
-
-                
-                output += ch;
-                output += CODE_SEPARATOR;
-                output += codes[i];
-                output += CODE_END;
+                overHead.add((byte) i );
+                overHead.add((byte) freq[i]);
             }
         }
 
@@ -151,8 +181,9 @@ public class StandardHuffman {
             output += codes[input.charAt(i)];
         }
 
+        overHead.addAll(convertBinaryToBytes(output));
+        return overHead;
 
-        return output;
     }
 
     private void printNodes(Node n, String depth) {
@@ -171,33 +202,64 @@ public class StandardHuffman {
         printNodes(n.right, depth + "   ");
     }
 
-    public String decompress(String input) {
+    public String decompress(List<Byte> input) {
         String output = "";
+        String[] codesArr = new String[256];
+
+        
         Map<String, Character> codes = new HashMap<>();
+        int[] freq = new int[256];
+        
+        int numberOfCodes = input.get(0);
+        int numberOfChars = input.get(1);
 
-        int numberOfCodes = Integer.parseInt(input.substring(0, input.indexOf(CODE_END)), 2);
-        input = input.substring(input.indexOf(CODE_END) + 1);
+        input = input.subList(2, input.size());
 
-        for (int i = 0; i < numberOfCodes; i++) {
-            char ch = (char) Integer.parseInt(input.substring(0, input.indexOf(CODE_SEPARATOR)), 2);
-            String code = input.substring(input.indexOf(CODE_SEPARATOR) + 1, input.indexOf(CODE_END));
-            input = input.substring(input.indexOf(CODE_END) + 1);
-            codes.put(code, ch);
+
+        for (int i = 0; i < numberOfCodes * 2; i+=2) {
+            freq[input.get(i)] = input.get(i+1);
         }
 
 
+        List<Byte> codedChars = input.subList(numberOfCodes * 2, input.size());
 
-        int i = 1;
-        while (input.length() > 0) {
-            if (codes.containsKey(input.substring(0, i))) {
-                output += codes.get(input.substring(0, i));
-                input = input.substring(i);
-                i = 0;
+
+        TreeSet<Node> sortedNodes = getSortedNodes(freq);
+
+        combine(sortedNodes);
+
+        divide(sortedNodes.first(), codesArr, "0");
+        divide(sortedNodes.last(), codesArr, "1");
+
+        for (int i = 0; i < 256; i++) {
+            if (codesArr[i] != null) {
+                codes.put(codesArr[i], (char) i);
             }
-
-            i++;
         }
 
+        String soFar = "";
+
+        String codedCharsStream = "";
+
+        for (byte b : codedChars) {
+            String current = Integer.toBinaryString((int) b & 0xFF);
+            while (current.length() % 8 != 0) {
+                current = "0" + current;
+            }
+            codedCharsStream += current;
+        }
+        
+        for (int i = 0; i < codedCharsStream.length(); i++) {
+            if (numberOfChars == 0) {
+                break;
+            }
+            soFar += codedCharsStream.charAt(i);
+            if (codes.containsKey(soFar)) {
+                output += codes.get(soFar);
+                soFar = "";
+                numberOfChars --;
+            }
+        }
         return output;
     }
 }

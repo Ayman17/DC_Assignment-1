@@ -1,8 +1,9 @@
+import java.util.ArrayList;
+
 public class HuffmanCompression {
 
     public static void main(String[] args) {
         boolean useGUI = true;
-
 
         if (useGUI) {
             GUI gui = new GUI();
@@ -14,11 +15,11 @@ public class HuffmanCompression {
             StandardHuffman huffmanCompression = new StandardHuffman();
             
             String fileContent = huffmanCompression.readFile(fileName + extension);
-            String fileCompressed = huffmanCompression.compress(fileContent);
+            ArrayList<Byte> fileCompressed = huffmanCompression.compress(fileContent);
             huffmanCompression.saveBytesFile(fileCompressed, fileName + "-compressed.bin");
             
-            fileContent = huffmanCompression.readFile(fileName + "-compressed.bin");
-            String fileDecompresed = huffmanCompression.decompress(fileContent);
+            ArrayList<Byte> commpressedContent= huffmanCompression.readFileBinary(fileName + "-compressed.bin");
+            String fileDecompresed = huffmanCompression.decompress(commpressedContent);
             huffmanCompression.saveFile(fileDecompresed, fileName + "-decompressed" + extension);
         }
     }

@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 
 // TODO: edit gui to standard huffman
 public class GUI {
@@ -66,8 +67,8 @@ public class GUI {
                 StandardHuffman h = new StandardHuffman();
 
                 String fileContent = h.readFile(inputPath);
-                String fileCompressed = h.compress(fileContent);
-                h.saveFile(fileCompressed, outputPath);
+                ArrayList<Byte> fileCompressed = h.compress(fileContent);
+                h.saveBytesFile(fileCompressed, outputPath);
             }
         });
 
@@ -78,7 +79,7 @@ public class GUI {
             public void actionPerformed(ActionEvent e) {
                 StandardHuffman h = new StandardHuffman();
 
-                String fileContent = h.readFile(inputPath);
+                ArrayList<Byte> fileContent = h.readFileBinary(inputPath);
                 String fileCompressed = h.decompress(fileContent);
                 h.saveFile(fileCompressed, outputPath);
             }
