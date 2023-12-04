@@ -52,21 +52,14 @@ public class VectorQuantization {
         }
     }
 
-    public BufferedImage compress(BufferedImage input, int vectorWidth, int vectorHeight) {
+    public BufferedImage compress(BufferedImage input, int vectorWidth, int vectorHeight, int numberOfVectors) {
         List<Vector> inputVectors = new ArrayList<Vector>();
-        int numberOfVectors = (input.getWidth() / vectorWidth) * (input.getHeight() / vectorHeight);
         Vector average = new Vector(vectorWidth, vectorHeight);
 
-        // Vector temp = new Vector(vectorWidth, vectorHeight);
-        // temp.addStartingFrom(0, 0, input);
-        // temp.print();
-
-        // List<List<Integer>> vectors = new ArrayList<>();
-
-        
         for (int i = 0; i < input.getWidth(); i += vectorWidth){
             for (int j = 0; j < input.getHeight(); j += vectorHeight) {
                 Vector temp = new Vector(vectorWidth, vectorHeight);
+                temp.addStartingFrom(i, j, input);
                 inputVectors.add(temp);
             }
         }
@@ -75,26 +68,29 @@ public class VectorQuantization {
         root.average.print();
         List<Node> output = new ArrayList<>(); 
         output.add(root);
+        System.out.println();
 
-        // for (int i = 0; i < 1; i++) {
-        //     List<Node> newNodes = new ArrayList<>();
-        //     for (int j = 0; j < output.size(); j++) {
-        //         Vector floored = output.get(j).average.floor();
-        //         Vector ceiled = output.get(j).average.ceil();
-        //         newNodes.add(new Node(floored));
-        //         newNodes.add(new Node(ceiled));
-        //     }
+        for (int i = 0; i < numberOfVectors; i++) {
+            List<Node> newNodes = new ArrayList<>();
+            for (int j = 0; j < output.size(); j++) {
+                Vector floored = output.get(j).average.floor();
+                Vector ceiled = output.get(j).average.ceil();
+                newNodes.add(new Node(floored));
+                newNodes.add(new Node(ceiled));
+            }
 
-        //     divideInputsVecotrs(newNodes, inputVectors);
+            divideInputsVecotrs(newNodes, inputVectors);
 
-        //     output = newNodes;
-        //     for (int j = 0; j < output.size(); j++) {
-        //         output.get(j).calcAverage();
-        //     }
-        // }
+            output = newNodes;
+            for (int j = 0; j < output.size(); j++) {
+                output.get(j).calcAverage();
+            }
+        }
 
-        // output.get(0).average.print();
-        // output.get(1).average.print();
+        for (int i = 0; i < output.size(); i++) {
+            output.get(i).average.print();
+            System.out.println();
+        }
 
         return input;
     }

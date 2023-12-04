@@ -16,7 +16,7 @@ public class Main {
             BufferedImage image = v.readGrayImage(fileName + extension);
 
 
-            v.compress(image, 4, 4);
+            v.compress(image, 4, 4, 4);
 
             v.saveGrayImage(image, "result" + extension);
             

@@ -30,7 +30,6 @@ public class Node {
         for (Vector vector : childVectors) {
             average.add(vector);
         }
-        average.print();
         average.divide(childVectors.size());
     }
 
