@@ -42,7 +42,7 @@ public class VectorQuantization {
         return Text;
     }
 
-    private static ArrayList<Byte> convertBinaryToBytes<>(String binaryStream) {
+    private static ArrayList<Byte> convertBinaryToBytes(String binaryStream) {
         while (binaryStream.length() % 8 != 0) {
             binaryStream += "0";
         }
