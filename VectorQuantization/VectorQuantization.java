@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.tree.TreeNode;
@@ -9,9 +10,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class VectorQuantization {
-    List<Integer> imageSize = Arrays.asList(640, 426);
+    List<Integer> imageSize = Arrays.asList(640, 427);
 
     public BufferedImage readGrayImage(String filePath)  {
         BufferedImage result;
@@ -57,6 +59,14 @@ public class VectorQuantization {
     public BufferedImage compress(BufferedImage input, int vectorWidth, int vectorHeight, int numberOfVectors) {
         List<Vector> inputVectors = new ArrayList<Vector>();
         Vector average = new Vector(vectorWidth, vectorHeight);
+        Set<Integer> unique = new HashSet<>();
+        for (int i = 0; i < input.getWidth(); i++ ) {
+            for (int j = 0; j < input.getHeight(); j ++) {
+                int value = (input.getRGB(i, j)>> 16) & 0xFF;
+                unique.add(value);
+            }
+        }
+        System.out.println(unique.size());
 
         for (int i = 0; i < input.getWidth(); i += vectorWidth){
             for (int j = 0; j < input.getHeight(); j += vectorHeight) {
@@ -66,7 +76,7 @@ public class VectorQuantization {
             }
         }
         
-        Node root = new Node(inputVectors);
+        Node root = new Node(inputVectors, vectorWidth, vectorHeight);
         List<Node> output = new ArrayList<>(); 
         output.add(root);
 
@@ -75,8 +85,8 @@ public class VectorQuantization {
             for (int j = 0; j < output.size(); j++) {
                 Vector floored = output.get(j).average.floor();
                 Vector ceiled = output.get(j).average.ceil();
-                newNodes.add(new Node(floored));
-                newNodes.add(new Node(ceiled));
+                newNodes.add(new Node(floored, vectorWidth, vectorHeight));
+                newNodes.add(new Node(ceiled, vectorWidth, vectorHeight));
             }
 
             divideInputsVecotrs(newNodes, inputVectors);
@@ -87,24 +97,56 @@ public class VectorQuantization {
             }
         }
 
+        
         Map<Vector, Vector> mapping = new HashMap<>();
-
+        
         for (int i = 0; i < output.size(); i++) {
             for (int j = 0; j < output.get(i).childVectors.size(); j++) {
                 mapping.put(output.get(i).childVectors.get(j), output.get(i).average);
             } 
         }
 
-        
-        List<Vector> result = new ArrayList<>();
+        List<List<Vector>> result = new ArrayList<>();
         for (int i = 0; i < inputVectors.size(); i++) {
-            result.add(mapping.get(inputVectors.get(i)));
+            if (i % (imageSize.get(0) / vectorWidth) == 0) {
+                result.add(new ArrayList<>());
+            }
+            result.get(result.size() - 1).add(mapping.get(inputVectors.get(i)));
+        }
+        
+        return vectorToImage(result, vectorWidth, vectorHeight);
+    }
+
+    BufferedImage vectorToImage(List<List<Vector>> v, int vectorWidth, int vectorHeight) { 
+        BufferedImage result = new BufferedImage(imageSize.get(0), imageSize.get(1), BufferedImage.TYPE_BYTE_GRAY);
+        List<List<Integer>> grayScale = new ArrayList<>(imageSize.get(0));
+
+        for (int i = 0; i < imageSize.get(1); i++) {
+            grayScale.add(new ArrayList<>());
+            for (int j = 0; j < imageSize.get(0); j++) {
+                int value = (int) (double) v.get((int) i / vectorWidth).get((int) j / vectorHeight).vector.get(i  % vectorWidth).get(j % vectorHeight);
+                grayScale.get(i).add(value);
+            }
         }
 
-        result.get(0).print();
+        Set<Integer> unique = new HashSet<>();
 
+        for (int y = 0; y < grayScale.size(); y++) {
+            for (int x = 0; x < grayScale.get(y).size(); x++) {
+                int pixelValue = grayScale.get(y).get(x);
+                unique.add(pixelValue);
+                int rgbValue = (pixelValue << 16) | (pixelValue << 8) | pixelValue;
+                result.setRGB(x, y, rgbValue);
+            }
+        }
 
-        return input;
+        System.out.println(unique.size());
+
+        return result;
+
+    }
+
+    void addVectorToList(List<List<Integer>> grayScale, Vector vector) {
     }
 
     public String decompress(List<Byte> input) {

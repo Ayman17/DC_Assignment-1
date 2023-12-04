@@ -2,29 +2,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    Node left;
-    Node right;
     Vector average;
     Vector rounded;
+    int xSize;
+    int ySize;
     List<Vector> childVectors = new ArrayList<>();
     List<Vector> inputVectors = new ArrayList<>();
 
-    Node(List<Vector> vs) {
-        left = null;
-        right = null;
+    Node(List<Vector> vs, int xSize, int ySize) {
+        this.xSize = xSize;
+        this.ySize = ySize;
         this.childVectors = vs;
         calcAverage();
     }
 
-    Node(Vector rounded) {
-        left = null;
-        right = null;
+    Node(Vector rounded, int xSize, int ySize) {
+        this.xSize = xSize;
+        this.ySize = ySize;
         average = null;
         this.rounded = rounded;
     }
 
     public void calcAverage() {
-        average = new Vector(childVectors.get(0).xSize, childVectors.get(0).ySize);
+        average = new Vector(xSize, ySize);
         for (Vector vector : childVectors) {
             average.add(vector);
         }

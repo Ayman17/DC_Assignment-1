@@ -4,7 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
         boolean useGUI = false;
-
+        
         if (useGUI) {
             
             // GUI gui = new GUI();
@@ -16,9 +16,9 @@ public class Main {
             BufferedImage image = v.readGrayImage(fileName + extension);
 
 
-            v.compress(image, 4, 4, 4);
+            BufferedImage result = v.compress(image, 4, 4, 8);
 
-            v.saveGrayImage(image, "result" + extension);
+            v.saveGrayImage(result, "compressed" + extension);
             
         }
     }
