@@ -1,88 +1,102 @@
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.tree.TreeNode;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+
 public class VectorQuantization {
-    char CODE_SEPARATOR = '-';
-    char CODE_END = '~';
+    List<Integer> imageSize = Arrays.asList(640, 426);
 
-    public ArrayList<Byte> readFileBinary(String fileName) {
-        ArrayList<Byte> content = new ArrayList<>();
-        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
-            int byteRead;
-            while ((byteRead = fileInputStream.read()) != -1) {
-                content.add((byte) byteRead);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return content;
-    }
-
-    public String readFile(String fileName) {
-        String Text = "";
+    public BufferedImage readGrayImage(String filePath)  {
+        BufferedImage result;
+ 
         try {
-            FileReader fileReader = new FileReader(fileName);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String line = "";
+            BufferedImage input = ImageIO.read(new File(filePath));
+            result = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+            result.getGraphics().drawImage(input, 0, 0, null);
+            System.out.println(result.getWidth() + ", " + result.getHeight());
 
-            while ((line = bufferedReader.readLine()) != null) {
-                Text += line;
+
+        } catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
+        return result;
+    }
+
+    public void saveGrayImage(BufferedImage image, String filePath) {
+        try {
+            ImageIO.write(image, "jpg", new File(filePath));
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public void divideInputsVecotrs(List<Node> newNodes, List<Vector>inputVectors) {
+        for (int i = 0; i < inputVectors.size(); i++) {
+            int result = -1;
+            int minVal = Integer.MAX_VALUE;
+            for (int j = 0; j < newNodes.size(); j++) {
+                int current = inputVectors.get(i).getDistance(newNodes.get(j).rounded);
+                if (current < minVal) {
+                    minVal = current;
+                    result = j;
+                }
             }
-            bufferedReader.close();
-            fileReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            newNodes.get(result).childVectors.add(inputVectors.get(i));
         }
-        return Text;
     }
 
-    private static ArrayList<Byte> convertBinaryToBytes(String binaryStream) {
-        while (binaryStream.length() % 8 != 0) {
-            binaryStream += "0";
-        }
+    public BufferedImage compress(BufferedImage input, int vectorWidth, int vectorHeight) {
+        List<Vector> inputVectors = new ArrayList<Vector>();
+        int numberOfVectors = (input.getWidth() / vectorWidth) * (input.getHeight() / vectorHeight);
+        Vector average = new Vector(vectorWidth, vectorHeight);
 
-        ArrayList<Byte> bytes = new ArrayList<Byte>();
-        for (int i = 0; i < binaryStream.length(); i += 8) {
-            String byteString = binaryStream.substring(i, i + 8);
-            byte b = (byte) Integer.parseInt(byteString, 2);
-            bytes.add(b);
-        }
+        // Vector temp = new Vector(vectorWidth, vectorHeight);
+        // temp.addStartingFrom(0, 0, input);
+        // temp.print();
 
-        return bytes;
-    }
+        // List<List<Integer>> vectors = new ArrayList<>();
 
-    public void saveBytesFile(ArrayList<Byte> content, String fileName) {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
-            // Convert ArrayList<Byte> to byte array
-            byte[] byteArray = new byte[content.size()];
-            for (int i = 0; i < content.size(); i++) {
-                byteArray[i] = content.get(i);
+        
+        for (int i = 0; i < input.getWidth(); i += vectorWidth){
+            for (int j = 0; j < input.getHeight(); j += vectorHeight) {
+                Vector temp = new Vector(vectorWidth, vectorHeight);
+                inputVectors.add(temp);
             }
-
-            fileOutputStream.write(byteArray);
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
+        
+        Node root = new Node(inputVectors);
+        root.average.print();
+        List<Node> output = new ArrayList<>(); 
+        output.add(root);
 
-    public void saveFile(String content, String fileName) {
-        try (FileWriter f = new FileWriter(fileName)) {
-            f.write(content);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+        // for (int i = 0; i < 1; i++) {
+        //     List<Node> newNodes = new ArrayList<>();
+        //     for (int j = 0; j < output.size(); j++) {
+        //         Vector floored = output.get(j).average.floor();
+        //         Vector ceiled = output.get(j).average.ceil();
+        //         newNodes.add(new Node(floored));
+        //         newNodes.add(new Node(ceiled));
+        //     }
 
+        //     divideInputsVecotrs(newNodes, inputVectors);
 
-    public ArrayList<Byte> compress(String input) {
-        return new ArrayList<>();
+        //     output = newNodes;
+        //     for (int j = 0; j < output.size(); j++) {
+        //         output.get(j).calcAverage();
+        //     }
+        // }
+
+        // output.get(0).average.print();
+        // output.get(1).average.print();
+
+        return input;
     }
 
     public String decompress(List<Byte> input) {

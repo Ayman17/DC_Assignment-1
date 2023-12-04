@@ -1,26 +1,25 @@
-import java.util.ArrayList;
+import java.awt.image.BufferedImage;
 
 public class Main {
 
     public static void main(String[] args) {
-        boolean useGUI = true;
+        boolean useGUI = false;
 
         if (useGUI) {
-            GUI gui = new GUI();
+            
+            // GUI gui = new GUI();
 
         } else {
-            String fileName = "TextToCompress";
-            String extension = ".txt";
+            String fileName = "image";
+            String extension = ".jpg";
+            VectorQuantization v = new VectorQuantization();
+            BufferedImage image = v.readGrayImage(fileName + extension);
+
+
+            v.compress(image, 4, 4);
+
+            v.saveGrayImage(image, "result" + extension);
             
-            StandardHuffman huffmanCompression = new StandardHuffman();
-            
-            String fileContent = huffmanCompression.readFile(fileName + extension);
-            ArrayList<Byte> fileCompressed = huffmanCompression.compress(fileContent);
-            huffmanCompression.saveBytesFile(fileCompressed, fileName + "-compressed.bin");
-            
-            ArrayList<Byte> commpressedContent= huffmanCompression.readFileBinary(fileName + "-compressed.bin");
-            String fileDecompresed = huffmanCompression.decompress(commpressedContent);
-            huffmanCompression.saveFile(fileDecompresed, fileName + "-decompressed" + extension);
         }
     }
 }
