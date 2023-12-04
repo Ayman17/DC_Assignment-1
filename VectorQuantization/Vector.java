@@ -47,6 +47,10 @@ public class Vector {
     }
 
     void divide(int value) {
+        if (value == 0) {
+            System.out.println("yeah you can't do that");
+            return;
+        }
         for (int i = 0; i < xSize; i++) {
             for (int j = 0; j < ySize; j++) {
                 Double newValue = vector.get(i).get(j) / value;
