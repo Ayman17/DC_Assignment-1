@@ -1,5 +1,6 @@
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.tree.TreeNode;
@@ -7,6 +8,7 @@ import javax.swing.tree.TreeNode;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class VectorQuantization {
     List<Integer> imageSize = Arrays.asList(640, 426);
@@ -65,10 +67,8 @@ public class VectorQuantization {
         }
         
         Node root = new Node(inputVectors);
-        root.average.print();
         List<Node> output = new ArrayList<>(); 
         output.add(root);
-        System.out.println();
 
         for (int i = 0; i < numberOfVectors; i++) {
             List<Node> newNodes = new ArrayList<>();
@@ -87,10 +87,22 @@ public class VectorQuantization {
             }
         }
 
+        Map<Vector, Vector> mapping = new HashMap<>();
+
         for (int i = 0; i < output.size(); i++) {
-            output.get(i).average.print();
-            System.out.println();
+            for (int j = 0; j < output.get(i).childVectors.size(); j++) {
+                mapping.put(output.get(i).childVectors.get(j), output.get(i).average);
+            } 
         }
+
+        
+        List<Vector> result = new ArrayList<>();
+        for (int i = 0; i < inputVectors.size(); i++) {
+            result.add(mapping.get(inputVectors.get(i)));
+        }
+
+        result.get(0).print();
+
 
         return input;
     }

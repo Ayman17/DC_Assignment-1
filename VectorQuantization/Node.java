@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import org.w3c.dom.css.Counter;
-
 public class Node {
     Node left;
     Node right;
