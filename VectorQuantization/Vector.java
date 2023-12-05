@@ -5,16 +5,14 @@ import java.util.List;
 public class Vector {
     int MIN_VAL = 0; 
     int MAX_VAL = 255;
-    int xSize = 0;
-    int ySize = 0;
+    int vectorDimension = 0;
     List<List<Double>> vector = new ArrayList<>();
 
-    Vector(int xSize,int ySize) {
-        this.xSize = xSize;
-        this.ySize = ySize;
-        for (int i = 0; i < xSize; i++) {
+    Vector(int vectorDimension) {
+        this.vectorDimension = vectorDimension;
+        for (int i = 0; i < vectorDimension; i++) {
             List<Double> temp = new ArrayList<>();
-            for (int j = 0; j < ySize; j++) {
+            for (int j = 0; j < vectorDimension; j++) {
                 temp.add(0d);
             }
             vector.add(temp);
@@ -22,46 +20,45 @@ public class Vector {
     }
     
     void addStartingFrom(int x, int y, BufferedImage image) {
-        for (int i = 0; i < xSize && xSize + x < image.getWidth(); i++) {
-            for (int j = 0; j < ySize && ySize + y < image.getHeight(); j++) {
-                int value = image.getRGB(i + x, j + y);
+        for (int i = 0; i < vectorDimension && i + y < image.getHeight(); i++) {
+            for (int j = 0; j < vectorDimension && j + x < image.getWidth(); j++) {
+                int value = image.getRGB(j + x, i + y);
                 value = (value >> 16) & 0xFF;
-                updatePixel(i, j, (double) value);
+                updatePixel(j, i, (double) value);
             }
         }
     }
 
 
     void updatePixel(int x, int y, Double value) {
-        vector.get(x).set(y, value);
+        vector.get(y).set(x, value);
     }
 
     void add(Vector other) {
         Double value = 0d;
-        for (int i = 0; i < xSize; i++) {
-            for (int j = 0; j < ySize; j++) {
+        for (int i = 0; i < vectorDimension; i++) {
+            for (int j = 0; j < vectorDimension; j++) {
                 value = vector.get(i).get(j) + other.vector.get(i).get(j);
-                updatePixel(i, j, value);
+                updatePixel(j, i, value);
             }
         }
     }
 
     void divide(int value) {
         if (value == 0) {
-            System.out.println("yeah you can't do that");
             return;
         }
-        for (int i = 0; i < xSize; i++) {
-            for (int j = 0; j < ySize; j++) {
+        for (int i = 0; i < vectorDimension; i++) {
+            for (int j = 0; j < vectorDimension; j++) {
                 Double newValue = vector.get(i).get(j) / value;
-                updatePixel(i, j, newValue);
+                updatePixel(j, i, newValue);
             }
         }
     }
 
     void print() {
-        for (int i = 0; i < xSize; i++) {
-            for (int j = 0; j < ySize; j++) {
+        for (int i = 0; i < vectorDimension; i++) {
+            for (int j = 0; j < vectorDimension; j++) {
                 System.out.print(vector.get(i).get(j) + " ");
             }
             System.out.println();
@@ -69,10 +66,10 @@ public class Vector {
     }
 
     Vector floor() {
-        Vector result = new Vector(xSize, ySize);
+        Vector result = new Vector(vectorDimension);
 
-        for (int i = 0; i < xSize; i++) {
-            for (int j = 0; j < ySize; j++) {
+        for (int i = 0; i < vectorDimension; i++) {
+            for (int j = 0; j < vectorDimension; j++) {
                 Double newValue = Math.floor(vector.get(i).get(j));
                 if (newValue == vector.get(i).get(j)) {
                     result.updatePixel(i, j, newValue - 1);
@@ -85,9 +82,9 @@ public class Vector {
     }
 
     Vector ceil() {
-        Vector result = new Vector(xSize, ySize);
-        for (int i = 0; i < xSize; i++) {
-            for (int j = 0; j < ySize; j++) {
+        Vector result = new Vector(vectorDimension);
+        for (int i = 0; i < vectorDimension; i++) {
+            for (int j = 0; j < vectorDimension; j++) {
                 Double newValue = Math.ceil(vector.get(i).get(j));
                 if (newValue == vector.get(i).get(j)) {
                     result.updatePixel(i, j, newValue + 1);
@@ -101,8 +98,8 @@ public class Vector {
 
     int getDistance (Vector other) {
         int result = 0;
-        for (int i = 0; i < xSize; i++) {
-            for (int j = 0; j < ySize; j++) {
+        for (int i = 0; i < vectorDimension; i++) {
+            for (int j = 0; j < vectorDimension; j++) {
                 result += Math.abs(vector.get(i).get(j) - other.vector.get(i).get(j));
             }
         } 

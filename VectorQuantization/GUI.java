@@ -2,13 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
 // TODO: edit gui to standard huffman
 public class GUI {
     JFrame frame = new JFrame("LZW");
-    String inputPath, outputPath;
+    String inputPath;
 
     public GUI() {
         GridBagConstraints constraints = new GridBagConstraints();
@@ -19,10 +20,10 @@ public class GUI {
         
         JPanel panel = new JPanel(new GridLayout(0, 2, 20, 20));
 
-        JButton b1 = new JButton("Choose the file to compress");
+        JButton b1 = new JButton("Choose the file");
 
         JLabel inputLabel = new JLabel("Input File : ");
-        JLabel outputLabel = new JLabel("Output File : ");
+        // JLabel outputLabel = new JLabel("Output File : ");
 
         b1.addActionListener(new ActionListener() {
             @Override
@@ -40,35 +41,19 @@ public class GUI {
         });
 
 
-        JButton b2 = new JButton("Choose where to save the file");
-
-        b2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir"))); 
-                int returnValue = fileChooser.showOpenDialog(null);
-
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    java.io.File selectedFile = fileChooser.getSelectedFile();
-                    outputPath = selectedFile.getAbsolutePath();
-
-                    outputLabel.setText("Output File : " + new File(outputPath).getName()); 
-                }
-            }
-        });
-
 
         JButton compress = new JButton("Compress");
     
         compress.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                StandardHuffman h = new StandardHuffman();
+                VectorQuantization h = new VectorQuantization();
+            VectorQuantization v = new VectorQuantization();
+            BufferedImage image = v.readGrayImage(inputPath);
 
-                String fileContent = h.readFile(inputPath);
-                ArrayList<Byte> fileCompressed = h.compress(fileContent);
-                h.saveBytesFile(fileCompressed, outputPath);
+
+            java.util.List<Byte> result = v.compress(image, 4, 32);
+            v.saveCompressedImage(result, "compressed.bin");       
             }
         });
 
@@ -77,19 +62,19 @@ public class GUI {
         decompress.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                StandardHuffman h = new StandardHuffman();
+                VectorQuantization v = new VectorQuantization();
 
-                ArrayList<Byte> fileContent = h.readFileBinary(inputPath);
-                String fileCompressed = h.decompress(fileContent);
-                h.saveFile(fileCompressed, outputPath);
+                java.util.List<Byte> compressedImage = v.readBinaryFile("compressed.bin");
+                BufferedImage decompressedImage = v.decompress(compressedImage);
+                v.saveGrayImage(decompressedImage, "decomressed.jpg");
             }
         });
 
         panel.add(b1, constraints);
         panel.add(inputLabel, constraints);
 
-        panel.add(b2);
-        panel.add(outputLabel);
+        // panel.add(b2);
+        // panel.add(outputLabel);
 
         panel.add(compress);
         panel.add(decompress);

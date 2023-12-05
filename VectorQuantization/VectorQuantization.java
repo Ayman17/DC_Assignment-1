@@ -4,16 +4,16 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.tree.TreeNode;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 public class VectorQuantization {
-    List<Integer> imageSize = Arrays.asList(640, 427);
 
     public BufferedImage readGrayImage(String filePath)  {
         BufferedImage result;
@@ -31,6 +31,34 @@ public class VectorQuantization {
         }
 
         return result;
+    }
+
+     public ArrayList<Byte> readBinaryFile(String fileName) {
+        ArrayList <Byte> content = new ArrayList();
+        try (FileInputStream fileInputStream = new FileInputStream(fileName)) {
+            int byteRead;
+            while ((byteRead = fileInputStream.read()) != -1) {
+                content.add((byte) byteRead);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return content;
+    }
+
+    public void saveCompressedImage(List<Byte> content, String fileName) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
+            // Convert ArrayList<Byte> to byte array
+            byte[] byteArray = new byte[content.size()];
+            for (int i = 0; i < content.size(); i++) {
+                byteArray[i] = content.get(i);
+            }
+
+            fileOutputStream.write(byteArray);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }  
     }
 
     public void saveGrayImage(BufferedImage image, String filePath) {
@@ -56,37 +84,29 @@ public class VectorQuantization {
         }
     }
 
-    public BufferedImage compress(BufferedImage input, int vectorWidth, int vectorHeight, int numberOfVectors) {
+    public List<Byte> compress(BufferedImage input, int vectorDimension, int numberOfVectors) {
         List<Vector> inputVectors = new ArrayList<Vector>();
-        Vector average = new Vector(vectorWidth, vectorHeight);
-        Set<Integer> unique = new HashSet<>();
-        for (int i = 0; i < input.getWidth(); i++ ) {
-            for (int j = 0; j < input.getHeight(); j ++) {
-                int value = (input.getRGB(i, j)>> 16) & 0xFF;
-                unique.add(value);
-            }
-        }
-        System.out.println(unique.size());
+        List<Integer> imageSize = Arrays.asList(input.getWidth(),input.getHeight());
 
-        for (int i = 0; i < input.getWidth(); i += vectorWidth){
-            for (int j = 0; j < input.getHeight(); j += vectorHeight) {
-                Vector temp = new Vector(vectorWidth, vectorHeight);
-                temp.addStartingFrom(i, j, input);
+        for (int i = 0; i < input.getHeight(); i += vectorDimension){
+            for (int j = 0; j < input.getWidth(); j += vectorDimension) {
+                Vector temp = new Vector(vectorDimension);
+                temp.addStartingFrom(j, i, input);
                 inputVectors.add(temp);
             }
         }
         
-        Node root = new Node(inputVectors, vectorWidth, vectorHeight);
+        Node root = new Node(inputVectors, vectorDimension);
         List<Node> output = new ArrayList<>(); 
         output.add(root);
-
-        for (int i = 0; i < numberOfVectors; i++) {
+        
+        while (output.size() < numberOfVectors) {
             List<Node> newNodes = new ArrayList<>();
             for (int j = 0; j < output.size(); j++) {
                 Vector floored = output.get(j).average.floor();
                 Vector ceiled = output.get(j).average.ceil();
-                newNodes.add(new Node(floored, vectorWidth, vectorHeight));
-                newNodes.add(new Node(ceiled, vectorWidth, vectorHeight));
+                newNodes.add(new Node(floored, vectorDimension));
+                newNodes.add(new Node(ceiled, vectorDimension));
             }
 
             divideInputsVecotrs(newNodes, inputVectors);
@@ -96,35 +116,95 @@ public class VectorQuantization {
                 output.get(j).calcAverage();
             }
         }
-
         
         Map<Vector, Vector> mapping = new HashMap<>();
+        List<List<Vector>> result = new ArrayList<>();
         
         for (int i = 0; i < output.size(); i++) {
             for (int j = 0; j < output.get(i).childVectors.size(); j++) {
                 mapping.put(output.get(i).childVectors.get(j), output.get(i).average);
             } 
         }
-
-        List<List<Vector>> result = new ArrayList<>();
+        
         for (int i = 0; i < inputVectors.size(); i++) {
-            if (i % (imageSize.get(0) / vectorWidth) == 0) {
+            if (i % (imageSize.get(0) / vectorDimension) == 0) {
                 result.add(new ArrayList<>());
             }
             result.get(result.size() - 1).add(mapping.get(inputVectors.get(i)));
         }
-        
-        return vectorToImage(result, vectorWidth, vectorHeight);
+
+        List<Byte> compressedBytes = compressedToBytes(imageSize, numberOfVectors, vectorDimension, output, result);
+
+        return compressedBytes;
+    }
+    /*
+     * outputByts : 
+     *          2 byte for width
+     *          2 byte for height
+     *          2 byte for numberOfVectors
+     *          1 byte for vectorDimension
+     * 
+     *          for each vector :
+     *              vectorDimension * vectorDimension * 1 bytes for each value
+     *          
+     *          1 byte for each vector code
+     */
+    List<Byte> compressedToBytes(List<Integer> imageSize, int numberOfVectors, int vectorDimension, List<Node> compressedVectors, List<List<Vector>> image2DVectors){
+        List<Byte> outputBytes = new ArrayList<>();
+        byte byte1 = (byte) ((imageSize.get(0)>> 8) & 0xFF); // Higher byte
+        byte byte2 = (byte) (imageSize.get(0)& 0xFF); // Lower byte
+
+        outputBytes.add(byte1);
+        outputBytes.add(byte2);
+
+
+        byte1 = (byte) ((imageSize.get(1)>> 8) & 0xFF); // Higher byte
+        byte2 = (byte) (imageSize.get(1)& 0xFF); // Lower byte
+
+        outputBytes.add(byte1);
+        outputBytes.add(byte2);
+       
+        byte1 = (byte) ((numberOfVectors >> 8) & 0xFF); // Higher byte
+        byte2 = (byte) (numberOfVectors & 0xFF); 
+
+        outputBytes.add(byte1);
+        outputBytes.add(byte2);
+
+        // int intValue = ((byte1 & 0xFF) << 8) | (byte2 & 0xFF);
+        // System.out.println(intValue);
+
+        byte1 = (byte) vectorDimension;
+
+        outputBytes.add(byte1);
+
+        Map<Vector, Integer> mapping = new HashMap<>();
+        for (int i = 0; i < compressedVectors.size(); i++) {
+            mapping.put(compressedVectors.get(i).average, i);
+            for (int y = 0; y < vectorDimension; y++) {
+                for (int x = 0; x < vectorDimension; x++) {
+                    byte1 = (byte) (int) (double) compressedVectors.get(i).average.vector.get(y).get(x);
+                    outputBytes.add(byte1);
+                }
+            }
+        }
+
+        for (int i = 0; i < image2DVectors.size() ; i++) {
+            for (int j = 0; j < image2DVectors.get(i).size(); j++) {
+                outputBytes.add((byte) (int) mapping.get(image2DVectors.get(i).get(j)));
+            }
+        }
+
+        return outputBytes;
     }
 
-    BufferedImage vectorToImage(List<List<Vector>> v, int vectorWidth, int vectorHeight) { 
+    BufferedImage vectorToImage(List<List<Vector>> v, int vectorDimension, List<Integer> imageSize) { 
         BufferedImage result = new BufferedImage(imageSize.get(0), imageSize.get(1), BufferedImage.TYPE_BYTE_GRAY);
         List<List<Integer>> grayScale = new ArrayList<>(imageSize.get(0));
 
         for (int i = 0; i < imageSize.get(1); i++) {
             grayScale.add(new ArrayList<>());
             for (int j = 0; j < imageSize.get(0); j++) {
-                int value = (int) (double) v.get((int) i / vectorWidth).get((int) j / vectorHeight).vector.get(i  % vectorWidth).get(j % vectorHeight);
+                int value = (int) (double) v.get((int) i / vectorDimension).get((int) j / vectorDimension).vector.get(i  % vectorDimension).get(j % vectorDimension);
                 grayScale.get(i).add(value);
             }
         }
@@ -146,10 +226,69 @@ public class VectorQuantization {
 
     }
 
-    void addVectorToList(List<List<Integer>> grayScale, Vector vector) {
-    }
 
-    public String decompress(List<Byte> input) {
-        return new String();
+
+    public BufferedImage decompress(List<Byte> input) {
+        BufferedImage result = null;
+        System.out.println();
+        System.out.println("Decompressing");
+
+        int i = 0;
+
+        int imageWidth = ((input.get(i) & 0xFF) << 8) | (input.get(i + 1) & 0xFF);
+        i += 2;
+        int imageHeight = ((input.get(i) & 0xFF) << 8) | (input.get(i + 1) & 0xFF);
+        i += 2;
+        int numberOfVectors = ((input.get(i) & 0xFF) << 8) | (input.get(i + 1) & 0xFF);
+        i += 2;
+        int vectorDimension = input.get(i) & 0xFF;
+        i++;
+
+        System.out.println(imageWidth + ", " + imageHeight);
+        System.out.println("numer of vectors: " + numberOfVectors);
+        System.out.println("vector dimension: " + vectorDimension);
+
+        List<Vector> codes = new ArrayList<>();
+
+        while (i < numberOfVectors * vectorDimension * vectorDimension) {
+            Vector temp = new Vector(vectorDimension);
+            for (int y = 0; y < vectorDimension; y++) {
+                for (int x = 0; x < vectorDimension; x++) {
+                    Double value = (double) (input.get(i) & 0xFF);
+                    temp.updatePixel(x, y, value);
+                    i++;
+                }
+            }
+            codes.add(temp);
+        }
+
+        List<Vector> imageVector1D = new ArrayList<>();
+
+        while (i < input.size()) {
+            int code = input.get(i) & 0xFF;
+            Vector current;
+
+            if (code > codes.size() - 1) {
+                code = 0;
+            }
+
+            current = codes.get(code);
+            
+            imageVector1D.add(current);
+            i++;
+        }
+
+        List<List<Vector>> imageVector2D = new ArrayList<>();
+
+
+        for (int j = 0; j < imageVector1D.size(); j++) {
+            if (j % (imageWidth / vectorDimension) == 0) {
+                imageVector2D.add(new ArrayList<>());
+            }
+            imageVector2D.get(imageVector2D.size() - 1).add(imageVector1D.get(j));
+        }
+
+
+        return vectorToImage(imageVector2D, vectorDimension, Arrays.asList(imageWidth, imageHeight));
     }
 }
