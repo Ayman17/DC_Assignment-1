@@ -32,22 +32,6 @@ public class Node {
     }
 
     public void divideChilds(List<Node> newNodes) {
-        // Vector floored = average.floor();
-        // Vector ceiled  = average.ceil();
-
-        // System.out.println("Flooored:::: ");
-        // floored.print();    
-
-        // System.out.println("Ceiled:::: ");
-        // ceiled.print();    
-
-        // Node newLeft = new Node();
-        // Node newRight = new Node();
-
-        // left = newLeft;
-        // right = newRight;
-
-        
         for (int i = 0; i < childVectors.size(); i++) {
             int result = -1;
             int minVal = Integer.MAX_VALUE;

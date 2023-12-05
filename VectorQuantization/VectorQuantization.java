@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.tree.TreeNode;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -58,20 +57,24 @@ public class VectorQuantization {
 
     public BufferedImage compress(BufferedImage input, int vectorWidth, int vectorHeight, int numberOfVectors) {
         List<Vector> inputVectors = new ArrayList<Vector>();
-        Vector average = new Vector(vectorWidth, vectorHeight);
-        Set<Integer> unique = new HashSet<>();
+        // Vector average = new Vector(vectorWidth, vectorHeight);
+        // Set<Integer> unique = new HashSet<>();
+        int maxVal = 0;
         for (int i = 0; i < input.getWidth(); i++ ) {
             for (int j = 0; j < input.getHeight(); j ++) {
                 int value = (input.getRGB(i, j)>> 16) & 0xFF;
-                unique.add(value);
+                if (value > maxVal) {
+                    maxVal = value;
+                }
+                // unique.add(value);
             }
         }
-        System.out.println(unique.size());
+        // System.out.println(unique.size());
 
-        for (int i = 0; i < input.getWidth(); i += vectorWidth){
-            for (int j = 0; j < input.getHeight(); j += vectorHeight) {
+        for (int i = 0; i < input.getHeight(); i += vectorWidth){
+            for (int j = 0; j < input.getWidth(); j += vectorHeight) {
                 Vector temp = new Vector(vectorWidth, vectorHeight);
-                temp.addStartingFrom(i, j, input);
+                temp.addStartingFrom(j, i, input);
                 inputVectors.add(temp);
             }
         }
@@ -79,7 +82,7 @@ public class VectorQuantization {
         Node root = new Node(inputVectors, vectorWidth, vectorHeight);
         List<Node> output = new ArrayList<>(); 
         output.add(root);
-
+        
         for (int i = 0; i < numberOfVectors; i++) {
             List<Node> newNodes = new ArrayList<>();
             for (int j = 0; j < output.size(); j++) {
@@ -97,21 +100,27 @@ public class VectorQuantization {
             }
         }
 
+        // for (Node n : output ) {
+        //     n.average.print();
+        //     System.out.println();
+        // }
+        
         
         Map<Vector, Vector> mapping = new HashMap<>();
+        List<List<Vector>> result = new ArrayList<>();
         
         for (int i = 0; i < output.size(); i++) {
             for (int j = 0; j < output.get(i).childVectors.size(); j++) {
                 mapping.put(output.get(i).childVectors.get(j), output.get(i).average);
             } 
         }
-
-        List<List<Vector>> result = new ArrayList<>();
+        
         for (int i = 0; i < inputVectors.size(); i++) {
             if (i % (imageSize.get(0) / vectorWidth) == 0) {
                 result.add(new ArrayList<>());
             }
             result.get(result.size() - 1).add(mapping.get(inputVectors.get(i)));
+            // result.get(result.size() - 1).add(inputVectors.get(i));
         }
         
         return vectorToImage(result, vectorWidth, vectorHeight);

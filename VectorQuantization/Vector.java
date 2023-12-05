@@ -22,18 +22,18 @@ public class Vector {
     }
     
     void addStartingFrom(int x, int y, BufferedImage image) {
-        for (int i = 0; i < xSize && xSize + x < image.getWidth(); i++) {
-            for (int j = 0; j < ySize && ySize + y < image.getHeight(); j++) {
-                int value = image.getRGB(i + x, j + y);
+        for (int i = 0; i < xSize && i + y < image.getHeight(); i++) {
+            for (int j = 0; j < ySize && j + x < image.getWidth(); j++) {
+                int value = image.getRGB(j + x, i + y);
                 value = (value >> 16) & 0xFF;
-                updatePixel(i, j, (double) value);
+                updatePixel(j, i, (double) value);
             }
         }
     }
 
 
     void updatePixel(int x, int y, Double value) {
-        vector.get(x).set(y, value);
+        vector.get(y).set(x, value);
     }
 
     void add(Vector other) {
@@ -41,14 +41,13 @@ public class Vector {
         for (int i = 0; i < xSize; i++) {
             for (int j = 0; j < ySize; j++) {
                 value = vector.get(i).get(j) + other.vector.get(i).get(j);
-                updatePixel(i, j, value);
+                updatePixel(j, i, value);
             }
         }
     }
 
     void divide(int value) {
         if (value == 0) {
-            System.out.println("yeah you can't do that");
             return;
         }
         for (int i = 0; i < xSize; i++) {
