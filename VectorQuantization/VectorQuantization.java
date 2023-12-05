@@ -141,7 +141,7 @@ public class VectorQuantization {
      * outputByts : 
      *          2 byte for width
      *          2 byte for height
-     *          2 byte for numberOfVectors
+     *          1 byte for numberOfVectors
      *          1 byte for vectorDimension
      * 
      *          for each vector :
@@ -164,14 +164,12 @@ public class VectorQuantization {
         outputBytes.add(byte1);
         outputBytes.add(byte2);
        
-        byte1 = (byte) ((numberOfVectors >> 8) & 0xFF); // Higher byte
-        byte2 = (byte) (numberOfVectors & 0xFF); 
-
-        outputBytes.add(byte1);
-        outputBytes.add(byte2);
-
         // int intValue = ((byte1 & 0xFF) << 8) | (byte2 & 0xFF);
         // System.out.println(intValue);
+
+        byte1 = (byte) numberOfVectors;
+
+        outputBytes.add(byte1);
 
         byte1 = (byte) vectorDimension;
 
@@ -190,7 +188,8 @@ public class VectorQuantization {
 
         for (int i = 0; i < image2DVectors.size() ; i++) {
             for (int j = 0; j < image2DVectors.get(i).size(); j++) {
-                outputBytes.add((byte) (int) mapping.get(image2DVectors.get(i).get(j)));
+                int val = mapping.get(image2DVectors.get(i).get(j));
+                outputBytes.add((byte) (val & 0xFF));
             }
         }
 
@@ -229,7 +228,6 @@ public class VectorQuantization {
 
 
     public BufferedImage decompress(List<Byte> input) {
-        BufferedImage result = null;
         System.out.println();
         System.out.println("Decompressing");
 
@@ -239,8 +237,8 @@ public class VectorQuantization {
         i += 2;
         int imageHeight = ((input.get(i) & 0xFF) << 8) | (input.get(i + 1) & 0xFF);
         i += 2;
-        int numberOfVectors = ((input.get(i) & 0xFF) << 8) | (input.get(i + 1) & 0xFF);
-        i += 2;
+        int numberOfVectors = input.get(i) & 0xFF;
+        i += 1;
         int vectorDimension = input.get(i) & 0xFF;
         i++;
 
@@ -249,8 +247,9 @@ public class VectorQuantization {
         System.out.println("vector dimension: " + vectorDimension);
 
         List<Vector> codes = new ArrayList<>();
-
-        while (i < numberOfVectors * vectorDimension * vectorDimension) {
+        int counter = 0;
+        while (codes.size() < numberOfVectors) {
+            counter ++;
             Vector temp = new Vector(vectorDimension);
             for (int y = 0; y < vectorDimension; y++) {
                 for (int x = 0; x < vectorDimension; x++) {
@@ -262,7 +261,10 @@ public class VectorQuantization {
             codes.add(temp);
         }
 
+
         List<Vector> imageVector1D = new ArrayList<>();
+
+        System.out.println("codes size:" + codes.size() + " counter: " + counter);
 
         while (i < input.size()) {
             int code = input.get(i) & 0xFF;
