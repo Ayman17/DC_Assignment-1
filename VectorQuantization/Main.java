@@ -1,13 +1,14 @@
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-        boolean useGUI = false;
+        boolean useGUI = true;
         
         if (useGUI) {
             
-            // GUI gui = new GUI();
+            new GUI();
 
         } else {
             String fileName = "image";
@@ -16,8 +17,12 @@ public class Main {
             BufferedImage image = v.readGrayImage(fileName + extension);
 
 
-            BufferedImage result = v.compress(image,4, 4, 8);
-            v.saveGrayImage(result, "compressed" + extension);
+            List<Byte> result = v.compress(image, 4, 32);
+            v.saveCompressedImage(result, "compressed.bin");
+
+            List<Byte> compressedImage = v.readBinaryFile("compressed.bin");
+            BufferedImage decompressedImage = v.decompress(compressedImage);
+            v.saveGrayImage(decompressedImage, "decomressed.jpg");
             
         }
     }
