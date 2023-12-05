@@ -53,7 +53,7 @@ public class Vector {
         for (int i = 0; i < xSize; i++) {
             for (int j = 0; j < ySize; j++) {
                 Double newValue = vector.get(i).get(j) / value;
-                updatePixel(i, j, newValue);
+                updatePixel(j, i, newValue);
             }
         }
     }
