@@ -5,11 +5,12 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import javax.swing.JTextField;
 
 // TODO: edit gui to standard huffman
 public class GUI {
     JFrame frame = new JFrame("LZW");
-    String inputPath;
+    String inputPath ;
 
     public GUI() {
         GridBagConstraints constraints = new GridBagConstraints();
@@ -23,7 +24,6 @@ public class GUI {
         JButton b1 = new JButton("Choose the file");
 
         JLabel inputLabel = new JLabel("Input File : ");
-        // JLabel outputLabel = new JLabel("Output File : ");
 
         b1.addActionListener(new ActionListener() {
             @Override
@@ -40,19 +40,22 @@ public class GUI {
             }
         });
 
+        JLabel vectorDimensionLabel = new JLabel("Enter Vector Dimension");
+        JTextField vectorDimensionInput = new JTextField(10);
 
+        JLabel numberOfVectorsLabel= new JLabel("Enter Number Of Vectors");
+        JTextField numberOfVectorsInput = new JTextField(10);
 
         JButton compress = new JButton("Compress");
     
         compress.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                VectorQuantization h = new VectorQuantization();
             VectorQuantization v = new VectorQuantization();
             BufferedImage image = v.readGrayImage(inputPath);
 
 
-            java.util.List<Byte> result = v.compress(image, 4, 32);
+            java.util.List<Byte> result = v.compress(image, Integer.parseInt(vectorDimensionInput.getText()), Integer.parseInt(numberOfVectorsInput.getText()));
             v.saveCompressedImage(result, "compressed.bin");       
             }
         });
@@ -73,8 +76,11 @@ public class GUI {
         panel.add(b1, constraints);
         panel.add(inputLabel, constraints);
 
-        // panel.add(b2);
-        // panel.add(outputLabel);
+        panel.add(vectorDimensionLabel, constraints); 
+        panel.add(vectorDimensionInput, constraints); 
+
+        panel.add(numberOfVectorsLabel, constraints); 
+        panel.add(numberOfVectorsInput, constraints); 
 
         panel.add(compress);
         panel.add(decompress);
